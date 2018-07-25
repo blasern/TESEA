@@ -1,0 +1,15 @@
+Package: TESEA
+Title: Topological Edge Set Enrichment Analysis
+Version: 0.0.0.9000
+Authors@R: person("Nello", "Blaser", email = "nello.blaser@uib.no", role = c("aut", "cre"))
+Description: The package identifies differentially regulated pathways by studying local neighborhoods of a background network in the context of gene expression data with two groups.
+Depends: R (>= 3.2.2)
+License: GPL
+Encoding: UTF-8
+LazyData: true
+Suggests: testthat,
+    ESEA,
+    igraph
+RoxygenNote: 6.0.1
+Imports: dplyr,
+    rdist
