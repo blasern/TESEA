@@ -35,6 +35,41 @@ TESEA.Main(EdgeCorScore, pathwayEdge.db, weighted.score.type = 1,
 \description{
 Topological edge set enrichment analysis
 }
+\examples{
+\dontrun{
+# set random seed
+set.seed(1)
+# get data from ESEA
+ESEA::initializeESEA()
+edgesbackground <- ESEA::GetEdgesBackgrandData()
+pathwayEdge.db <- ESEA::GetPathwayEdgeData()
+dataset <- ESEA::GetExampleData("dataset")
+class.labels <- ESEA::GetExampleData("class.labels")
+controlcharacter <- ESEA::GetExampleData("controlcharactor") 
+# calculate edge score (triangle version)
+EdgeTriScore <- triangle_creation_score(dataset,
+                                        class.labels, 
+                                        controlcharacter, 
+                                        edgesbackground)
+# topological edge set enrichment analysis
+Results_Tri <- TESEA.Main(
+  EdgeTriScore, 
+  pathwayEdge.db, weighted.score.type = 1,
+  pathway = "kegg", gs.size.threshold.min = 15,
+  gs.size.threshold.max = 1000, 
+  reshuffling.type = "edge.labels", nperm = 1000,
+  p.val.threshold= -1, FDR.threshold = 0.05, topgs =1)
+# look at results
+res_Tri <- Results_Tri[["summary"]]
+res_Tri[res_Tri[, 'FDR q-val'] < 0.05, c("GS", "SIZE", "ES", "NES")]
+##                                       GS SIZE       ES       NES
+## 103 Maturity onset diabetes of the young   17  0.90011  2.373214
+## 15   Antigen processing and presentation   56 -0.54973 -1.931995
+## 126                p53 signaling pathway   70  0.46139  1.638150
+## 147               Rap1 signaling pathway  980 -0.27030 -1.296834
+## 148                Ras signaling pathway  976 -0.26085 -1.245997
+}
+}
 \author{
 Junwei Han, Xinrui Shi and Chunquan Li wrote the original in the ESEA package, small changes by Nello Blaser.
 }
