@@ -1,6 +1,6 @@
 #' Topological edge set enrichment analysis
 #' 
-#' @param EdgeCorScore A numeric vector. Each element is the differential correlation score of an edge.
+#' @param EdgeScore A numeric vector. Each element is the differential score of an edge from \code{\link{triangle_creation_score}} or \code{\link[ESEA]{calEdgeCorScore}}.
 #' @param pathwayEdge.db A character vector, the length of it is the number of pathways.
 #' @param weighted.score.type A value. Edge enrichment correlation-based weighting: 0=no weight, 1=standard weigth, 2 = over-weigth. The default value is 1
 #' @param pathway A character string of pathway database. Should be one of "kegg","reactome", "nci","huamncyc","biocarta","spike" and "panther". The default value is "kegg"
@@ -47,9 +47,11 @@
 #' ## 126                p53 signaling pathway   70  0.46139  1.638150
 #' ## 147               Rap1 signaling pathway  980 -0.27030 -1.296834
 #' ## 148                Ras signaling pathway  976 -0.26085 -1.245997
+#' # plot first pathway
+#' PlotTESEAPathwayGraph(Results_Tri[['pathways']][[1]])
 #' }
 TESEA.Main <-
-  function (EdgeCorScore, pathwayEdge.db, weighted.score.type = 1, 
+  function (EdgeScore, pathwayEdge.db, weighted.score.type = 1, 
             pathway = "kegg", gs.size.threshold.min = 15, gs.size.threshold.max = 1000, 
             reshuffling.type = "edge.labels", nperm = 100, p.val.threshold = -1, 
             FDR.threshold = 0.05, topgs = 1) 
@@ -57,7 +59,7 @@ TESEA.Main <-
     # initialize
     print("Running TESEA Analysis...")
     if (gs.size.threshold.min <= 1) gs.size.threshold.min <- 1
-    edge.labels <- names(EdgeCorScore)
+    edge.labels <- names(EdgeScore)
     pathway_list <- strsplit(pathwayEdge.db, "\\t")
     
     # update pathway list based on pathway and edge overlap
@@ -82,8 +84,8 @@ TESEA.Main <-
     if (length(pathway_list_merged) == 0) stop("Edge labels not matching or no pathways of specified size.")
     
     # sort edge scores 
-    N <- length(EdgeCorScore)
-    obs.s2n <- as.vector(EdgeCorScore)
+    N <- length(EdgeScore)
+    obs.s2n <- as.vector(EdgeScore)
     obs.edge.list2 <- order(obs.s2n, decreasing = T)
     obs.s2n <- obs.s2n[obs.edge.list2]
     obs.edge.labels <- edge.labels[obs.edge.list2]
@@ -114,8 +116,8 @@ TESEA.Main <-
       edge_set2 <- match(edge_set, edge.labels)
       if (reshuffling.type == "gene.labels") {
         replicate(nperm, {
-          s2n <- stats::rnorm(length(EdgeCorScore), mean = mean(EdgeCorScore), 
-                              sd = stats::sd(EdgeCorScore))
+          s2n <- stats::rnorm(length(EdgeScore), mean = mean(EdgeScore), 
+                              sd = stats::sd(EdgeScore))
           edge_list2 <- order(s2n, decreasing = T)
           s2n <- s2n[edge_list2]
           return(TESEA.EnrichmentScore2(edge.list = edge_list2, 
@@ -221,7 +223,7 @@ TESEA.Main <-
       edge.report <- data.frame(cbind(edge.number, edge.names, 
                                       edge.list.loc, edge.s2n, edge.RES, core.enrichment))
       names(edge.report) <- c("#", "EdgeID", "List Loc", 
-                              "EdgeCorScore", "RES", "CORE_ENRICHMENT")
+                              "EdgeScore", "RES", "CORE_ENRICHMENT")
       edge.report
     })
     names(result2) <- pathway_names[output_pathway]
@@ -307,7 +309,7 @@ TESEA.EnrichmentScore2 <- function(edge.list, edge.set,
 
 #' Plot the pathway-result network diagram
 #' 
-#' @param graph A dataframe of pathway result obtained from the TESEA.main function.
+#' @param graph A dataframe of pathway result obtained from the \code{\link{TESEA.Main}} function.
 #' @param margin A numeric. The value is usually between -0.5 and 0.5, which is able to zoom in or out a pathway graph. The default is 0.
 #' @param vertex.label.cex 	A numeric vector of node label size.
 #' @param vertex.label.font A numeric vector of label font.
@@ -331,7 +333,8 @@ TESEA.EnrichmentScore2 <- function(edge.list, edge.set,
 PlotTESEAPathwayGraph <- 
   function (graph, margin = 0, vertex.label.cex = 0.6, vertex.label.font = 1, 
             vertex.size = 8, vertex.size2 = 6, vertex.shape = "rectangle", 
-            layout = igraph::layout.random, vertex.label.color = "black", edge.color = "dimgray", 
+            layout = igraph::layout.fruchterman.reingold, 
+            vertex.label.color = "black", edge.color = "dimgray", 
             vertex.color = "#C1FFC1", vertex.frame.color = "dimgray", 
             axes = FALSE, xlab = "", ylab = "", sub = NULL, main = NULL, 
             ...) 

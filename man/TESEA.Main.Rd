@@ -4,13 +4,13 @@
 \alias{TESEA.Main}
 \title{Topological edge set enrichment analysis}
 \usage{
-TESEA.Main(EdgeCorScore, pathwayEdge.db, weighted.score.type = 1,
+TESEA.Main(EdgeScore, pathwayEdge.db, weighted.score.type = 1,
   pathway = "kegg", gs.size.threshold.min = 15,
   gs.size.threshold.max = 1000, reshuffling.type = "edge.labels",
   nperm = 100, p.val.threshold = -1, FDR.threshold = 0.05, topgs = 1)
 }
 \arguments{
-\item{EdgeCorScore}{A numeric vector. Each element is the differential correlation score of an edge.}
+\item{EdgeScore}{A numeric vector. Each element is the differential score of an edge from \code{\link{triangle_creation_score}} or \code{\link[ESEA]{calEdgeCorScore}}.}
 
 \item{pathwayEdge.db}{A character vector, the length of it is the number of pathways.}
 
@@ -68,6 +68,8 @@ res_Tri[res_Tri[, 'FDR q-val'] < 0.05, c("GS", "SIZE", "ES", "NES")]
 ## 126                p53 signaling pathway   70  0.46139  1.638150
 ## 147               Rap1 signaling pathway  980 -0.27030 -1.296834
 ## 148                Ras signaling pathway  976 -0.26085 -1.245997
+# plot first pathway
+PlotTESEAPathwayGraph(Results_Tri[['pathways']][[1]])
 }
 }
 \author{

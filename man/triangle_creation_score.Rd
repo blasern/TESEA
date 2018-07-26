@@ -25,5 +25,6 @@ edges.}
 \description{
 Calculate the difference between the proportions of triangles an edge 
 creates in the exposed group versus the control group. This is an 
-alternative to \code{calEdgeCorScore} from the \code{ESEA} package.
+alternative to \code{\link[ESEA]{calEdgeCorScore}} from the \code{ESEA} package 
+to use in \code{\link{TESEA.Main}}.
 }

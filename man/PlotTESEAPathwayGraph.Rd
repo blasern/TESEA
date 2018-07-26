@@ -6,13 +6,13 @@
 \usage{
 PlotTESEAPathwayGraph(graph, margin = 0, vertex.label.cex = 0.6,
   vertex.label.font = 1, vertex.size = 8, vertex.size2 = 6,
-  vertex.shape = "rectangle", layout = igraph::layout.random,
+  vertex.shape = "rectangle", layout = igraph::layout.fruchterman.reingold,
   vertex.label.color = "black", edge.color = "dimgray",
   vertex.color = "#C1FFC1", vertex.frame.color = "dimgray", axes = FALSE,
   xlab = "", ylab = "", sub = NULL, main = NULL, ...)
 }
 \arguments{
-\item{graph}{A dataframe of pathway result obtained from the TESEA.main function.}
+\item{graph}{A dataframe of pathway result obtained from the \code{\link{TESEA.Main}} function.}
 
 \item{margin}{A numeric. The value is usually between -0.5 and 0.5, which is able to zoom in or out a pathway graph. The default is 0.}
 
