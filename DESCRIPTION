@@ -12,4 +12,6 @@ Suggests: testthat,
     igraph
 RoxygenNote: 6.0.1
 Imports: dplyr,
-    rdist
+    rdist,
+    graphics,
+    stats

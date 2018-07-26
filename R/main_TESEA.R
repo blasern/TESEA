@@ -12,6 +12,7 @@
 #' @param FDR.threshold A value. The significance threshold of FDR q-value for pathways whose detail results of pathways to be presented. The default value is 0.05.
 #' @param topgs An integer. The number of top scoring gene sets used for detailed reports. The default value is 1.
 #' @author Junwei Han, Xinrui Shi and Chunquan Li wrote the original in the ESEA package, small changes by Nello Blaser.
+#' @importFrom stats rnorm sd
 #' @export
 TESEA.Main <-
   function (EdgeCorScore, pathwayEdge.db, weighted.score.type = 1, 
@@ -93,7 +94,7 @@ TESEA.Main <-
     Obs.arg.ES <- vector(length = Ng, mode = "numeric")
     Obs.ES.norm <- vector(length = Ng, mode = "numeric")
     TESEA.EnrichmentScore <- function(edge.list, edge.set, weighted.score.type = 1, 
-                                     correl.vector = NULL) {
+                                      correl.vector = NULL) {
       tag.indicator <- sign(match(edge.list, edge.set, nomatch = 0))
       no.tag.indicator <- 1 - tag.indicator
       N <- length(edge.list)
@@ -126,7 +127,7 @@ TESEA.Main <-
       return(list(ES = ES, arg.ES = arg.ES, RES = RES, indicator = tag.indicator))
     }
     TESEA.EnrichmentScore2 <- function(edge.list, edge.set, weighted.score.type = 1, 
-                                      correl.vector = NULL) {
+                                       correl.vector = NULL) {
       N <- length(edge.list)
       Nh <- length(edge.set)
       Nm <- N - Nh
@@ -184,8 +185,8 @@ TESEA.Main <-
       edge.set2 <- vector(length = length(edge.set), mode = "numeric")
       edge.set2 <- match(edge.set, edge.labels)
       TESEA.results <- TESEA.EnrichmentScore(edge.list = obs.edge.list2, 
-                                           edge.set = edge.set2, weighted.score.type = weighted.score.type, 
-                                           correl.vector = obs.s2n)
+                                             edge.set = edge.set2, weighted.score.type = weighted.score.type, 
+                                             correl.vector = obs.s2n)
       Obs.ES[i] <- TESEA.results$ES
       Obs.arg.ES[i] <- TESEA.results$arg.ES
       Obs.RES[i, ] <- TESEA.results$RES
@@ -212,14 +213,14 @@ TESEA.Main <-
         edge.set2 <- vector(length = length(edge.set), mode = "numeric")
         edge.set2 <- match(edge.set, edge.labels)
         for (r in 1:nperm) {
-          s2n <- rnorm(length(EdgeCorScore), mean = mean(EdgeCorScore), 
-                       sd = sd(EdgeCorScore))
+          s2n <- stats::rnorm(length(EdgeCorScore), mean = mean(EdgeCorScore), 
+                              sd = stats::sd(EdgeCorScore))
           index <- order(s2n, decreasing = T)
           s2n <- sort(s2n, decreasing = T)
           edge.list2 <- index
           TESEA.results <- TESEA.EnrichmentScore2(edge.list = edge.list2, 
-                                                edge.set = edge.set2, weighted.score.type = weighted.score.type, 
-                                                correl.vector = s2n)
+                                                  edge.set = edge.set2, weighted.score.type = weighted.score.type, 
+                                                  correl.vector = s2n)
           phi[i, r] <- TESEA.results$ES
         }
         gc()
@@ -233,15 +234,15 @@ TESEA.Main <-
         for (r in 1:nperm) {
           edge.list2 <- sample(1:N)
           TESEA.results <- TESEA.EnrichmentScore2(edge.list = edge.list2, 
-                                                edge.set = edge.set2, weighted.score.type = weighted.score.type, 
-                                                correl.vector = obs.s2n)
+                                                  edge.set = edge.set2, weighted.score.type = weighted.score.type, 
+                                                  correl.vector = obs.s2n)
           stop_counter <- 1
           while (is.na(TESEA.results$ES)){
             if (stop_counter > 100) stop("Enrichment score is NA")
             edge.list2 <- sample(1:N)
             TESEA.results <- TESEA.EnrichmentScore2(edge.list = edge.list2, 
-                                                  edge.set = edge.set2, weighted.score.type = weighted.score.type, 
-                                                  correl.vector = obs.s2n)
+                                                    edge.set = edge.set2, weighted.score.type = weighted.score.type, 
+                                                    correl.vector = obs.s2n)
             stop_counter <- stop_counter + 1
           }
           phi[i, r] <- TESEA.results$ES
@@ -392,6 +393,7 @@ TESEA.Main <-
 #' @param main A character string of main title.
 #' @param ... The arguments passed to or from methods. See plot.igraph and see plot.
 #' @author Junwei Han, Xinrui Shi and Chunquan Li wrote the original in the ESEA package, small changes by Nello Blaser.
+#' @importFrom graphics par
 #' @export
 PlotTESEAPathwayGraph <- 
   function (graph, margin = 0, vertex.label.cex = 0.6, vertex.label.font = 1, 
@@ -427,16 +429,16 @@ PlotTESEAPathwayGraph <-
         layout <- NULL
       if ((axes == FALSE) && xlab == "" && ylab == "" && is.null(sub) && 
           is.null(main)) {
-        old.mai <- par(mai = c(0.01, 0.25, 0.01, 0.3))
-        on.exit(par(mai = old.mai), add = TRUE)
+        old.mai <- graphics::par(mai = c(0.01, 0.25, 0.01, 0.3))
+        on.exit(graphics::par(mai = old.mai), add = TRUE)
       }
       igraph::plot.igraph(graph, margin = margin, vertex.label.cex = vertex.label.cex, 
-           vertex.label.font = vertex.label.font, vertex.size = vertex.size, 
-           vertex.size2 = vertex.size2, vertex.shape = vertex.shape, 
-           layout = layout, vertex.label.color = vertex.label.color, 
-           edge.color = igraph::E(graph)$color, vertex.color = vertex.color, 
-           vertex.frame.color = vertex.frame.color, 
-           axes = axes, xlab = xlab, ylab = ylab, sub = sub, main = main, 
-           ...)
+                          vertex.label.font = vertex.label.font, vertex.size = vertex.size, 
+                          vertex.size2 = vertex.size2, vertex.shape = vertex.shape, 
+                          layout = layout, vertex.label.color = vertex.label.color, 
+                          edge.color = igraph::E(graph)$color, vertex.color = vertex.color, 
+                          vertex.frame.color = vertex.frame.color, 
+                          axes = axes, xlab = xlab, ylab = ylab, sub = sub, main = main, 
+                          ...)
     }
   }

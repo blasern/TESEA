@@ -14,6 +14,7 @@
 #' @param metric The distance metric to use. Defaults to "angular". 
 #' 
 #' @importFrom rdist cdist
+#' @importFrom stats fisher.test na.omit p.adjust
 #' @import dplyr
 #' @export
 triangle_creation_score <- function(dataset, class.labels, controlcharacter, edgesbackground, 
@@ -65,12 +66,12 @@ triangle_test <- function(combined_triangles){
       created <- rbind(.data[["created_control"]], .data[["created_exposed"]])
       total <- rbind(.data[["total_control"]], .data[["total_exposed"]])
       cont_table <- cbind(created, total - created)
-      ftest <- fisher.test(cont_table)
+      ftest <- stats::fisher.test(cont_table)
       data.frame(OR = ftest$estimate, p = ftest$p.value, 
                  lower = ftest$conf.int[1], upper = ftest$conf.int[2])
     }) %>%
     dplyr::ungroup() %>% 
-    dplyr::mutate_(p_adj = 'p.adjust(p, method = "holm")')
+    dplyr::mutate_(p_adj = 'stats::p.adjust(p, method = "holm")')
 }
 
 network_cosine_distance <- function(dataset, edgesbackground, groups, metric="angular"){
@@ -94,7 +95,7 @@ get_location <- function(dataset, edgesbackground){
   location <- data.frame(
     location_gene1 = match(edgesbackground[, 1], rownames(dataset)), 
     location_gene2 = match(edgesbackground[, 2], rownames(dataset)))
-  location <- na.omit(location)
+  location <- stats::na.omit(location)
   if (nrow(location) == 0){
     stop("Not enough overlap between genes in dataset and background network")
   }
